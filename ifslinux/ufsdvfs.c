@@ -4486,12 +4486,13 @@ ufsd_setattr(
     ClearFlag( attr->ia_valid, UFSD_NOACSR_ATTRS );
     ia_valid = attr->ia_valid;
   }
-
-  err = inode_change_ok( i, attr );
+  // Changed inode_change_ok to setattr_prepare, for new kernels
+  // TODO: Prepare helper function and configure options to play nice with older kernels.
+  err = setattr_prepare( de, attr );
   if ( err ) {
 #ifdef UFSD_DEBUG
     unsigned int fs_uid   = __kuid_val( current_fsuid() );
-    DebugTrace( 0, Dbg, ("inode_change_ok failed: \"%s\" current_fsuid=%d, ia_valid=%x\n", current->comm, fs_uid, ia_valid ));
+    DebugTrace( 0, Dbg, ("setattr_prepare failed: \"%s\" current_fsuid=%d, ia_valid=%x\n", current->comm, fs_uid, ia_valid ));
     if ( FlagOn( ia_valid, ATTR_UID ) )
       DebugTrace( 0, Dbg, ("new uid=%d, capable(CAP_CHOWN)=%d\n", __kuid_val( attr->ia_uid ), capable(CAP_CHOWN) ));
 
